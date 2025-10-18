@@ -31,7 +31,7 @@ cd opencc-word
 
 ### 2. Install dependencies
 ```bash
-pip install python-docx opencc-python-reimplemented
+pip install python-docx opencc
 ```
 
 > ⚠️ **Note**: Only `.docx` files are supported (not legacy `.doc`). The script will warn you if `.doc` is used.
@@ -104,28 +104,6 @@ python opencc_word.py <input.docx> [output.docx] [--type s2mo|t2s]
 
 > 💡 **Tip**: For complex documents, consider converting headers/footers manually or using Microsoft Word’s built-in converter for those sections.
 
----
-
-## 🚀 Example Workflow
-
-1. Prepare your `hk2mo.json` with Macau-preferred terms
-2. Run:
-   ```bash
-   python convert.py application_form.docx
-   ```
-3. Get `application_form(t).docx` with:
-   - Accurate Traditional Chinese conversion
-   - Localized Macau terminology
-   - All original formatting preserved
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please open an issue or submit a PR for:
-- Support for headers/footers
-- Regex-based replacement engine
-- Additional regional profiles (e.g., `s2tw` for Taiwan)
 
 ---
 
@@ -134,6 +112,3 @@ Contributions are welcome! Please open an issue or submit a PR for:
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
-
-> Made with ❤️ for Macau and Greater China localization workflows.  
-> Questions? Open an [Issue](https://github.com/your-username/chinese-docx-convert/issues)!
