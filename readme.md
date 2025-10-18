@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/Python-3.6%2B-blue?logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Convert Simplified Chinese ↔ Traditional Chinese in `.docx` files **while preserving all text formatting** (bold, italic, font, color, etc.), with built-in support for **Chinese characters commonly used in Macau**.
+Convert Simplified Chinese <-> Traditional Chinese in `.docx` files **while preserving all text formatting** (bold, italic, font, color, etc.), with built-in support for **Chinese characters commonly used in Macau**.
 
 
 ---
