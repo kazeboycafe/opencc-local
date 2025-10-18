@@ -15,7 +15,7 @@ Convert Simplified Chinese ↔ Traditional Chinese in `.docx` files **while pres
   - `s2mo` mode: Converts Simplified → Hong Kong Traditional → **Macau-adjusted** via custom JSON dictionary
 - **Flexible I/O**:  
   - Input: `.docx` file (required)  
-  - Output: Auto-generated if omitted (`report.docx` → `report(t).docx` or `report(s).docx`)
+  - Output: Auto-generated if omitted (`input.docx` → `input(t).docx` or `input(s).docx`)
 - **Full table support**: Handles nested tables recursively
 
 
