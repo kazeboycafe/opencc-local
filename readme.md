@@ -1,4 +1,4 @@
-# 📘 Chinese DOCX Converter
+# 📘 Simplified <-> Traditional Chinese .docx Converter
 
 [![Python](https://img.shields.io/badge/Python-3.6%2B-blue?logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -25,8 +25,8 @@ Convert Simplified Chinese ↔ Traditional Chinese in `.docx` files **while pres
 
 ### 1. Clone or download this repository
 ```bash
-git clone https://github.com/kazeboycafe/opencc-word.git
-cd opencc-word
+git clone https://github.com/kazeboycafe/opencc-docx.git
+cd opencc-docx
 ```
 
 ### 2. Install dependencies
@@ -56,24 +56,24 @@ Define Chinese characters commonly used in Macau:
 
 ### Basic: Simplified → Macau Traditional (auto output)
 ```bash
-python opencc_word.py input.docx
+python opencc_docx.py input.docx
 # Output: input(t).docx
 ```
 
 ### Specify output filename
 ```bash
-python opencc_word.py input.docx output.docx
+python opencc_docx.py input.docx output.docx
 ```
 
 ### Traditional → Simplified
 ```bash
-python opencc_word.py input.docx --type t2s
+python opencc_docx.py input.docx --type t2s
 # Output: input(s).docx
 ```
 
 ### Full command syntax
 ```bash
-python opencc_word.py <input.docx> [output.docx] [--type s2mo|t2s]
+python opencc_docx.py <input.docx> [output.docx] [--type s2mo|t2s]
 ```
 
 ### Options
