@@ -1,0 +1,5 @@
+# Ignore all .docx files
+*.docx
+
+# ignore python cache
+__pycache__/
