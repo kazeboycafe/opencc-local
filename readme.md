@@ -3,9 +3,8 @@
 [![Python](https://img.shields.io/badge/Python-3.6%2B-blue?logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Convert Simplified Chinese ↔ Traditional Chinese in `.docx` files **while preserving all text formatting** (bold, italic, font, color, etc.), with built-in support for **Macau-specific terminology**.
+Convert Simplified Chinese ↔ Traditional Chinese in `.docx` files **while preserving all text formatting** (bold, italic, font, color, etc.), with built-in support for **Chinese characters commonly used in Macau**.
 
-Perfect for legal, government, academic, or business documents requiring accurate regional Chinese variants.
 
 ---
 
@@ -18,7 +17,7 @@ Perfect for legal, government, academic, or business documents requiring accurat
   - Input: `.docx` file (required)  
   - Output: Auto-generated if omitted (`report.docx` → `report(t).docx` or `report(s).docx`)
 - **Full table support**: Handles nested tables recursively
-- **Simple CLI**: Easy to use from terminal or integrate into workflows
+
 
 ---
 
@@ -26,8 +25,8 @@ Perfect for legal, government, academic, or business documents requiring accurat
 
 ### 1. Clone or download this repository
 ```bash
-git clone https://github.com/your-username/chinese-docx-convert.git
-cd chinese-docx-convert
+git clone https://github.com/kazeboycafe/opencc-word.git
+cd opencc-word
 ```
 
 ### 2. Install dependencies
@@ -39,31 +38,17 @@ pip install python-docx opencc-python-reimplemented
 
 ---
 
-## 📁 Project Structure
-
-```
-chinese-docx-convert/
-├── convert.py              # Main conversion script
-├── hk2mo.json              # Macau terminology overrides (required for s2mo mode)
-├── README.md
-└── LICENSE
-```
 
 ### 🔧 Customize `hk2mo.json`
-Define your Macau-specific word replacements:
+Define Chinese characters commonly used in Macau:
 
 ```json
 {
-  "軟件": "軟體",
-  "打印機": "印表機",
-  "鼠標": "滑鼠",
-  "服務器": "伺服器",
-  "人工智能": "人工智慧",
-  "程序員": "程式員"
+  "衞": "衛"
 }
 ```
 
-> Add or modify entries to match your organization's preferred terminology.
+> Add or modify entries to match your preferred Chinese characters.
 
 ---
 
@@ -71,24 +56,24 @@ Define your Macau-specific word replacements:
 
 ### Basic: Simplified → Macau Traditional (auto output)
 ```bash
-python convert.py input.docx
+python opencc_word.py input.docx
 # Output: input(t).docx
 ```
 
 ### Specify output filename
 ```bash
-python convert.py report.docx macau_report.docx
+python opencc_word.py input.docx output.docx
 ```
 
 ### Traditional → Simplified
 ```bash
-python convert.py traditional.docx
-# Output: traditional(s).docx
+python opencc_word.py input.docx --type t2s
+# Output: input(s).docx
 ```
 
 ### Full command syntax
 ```bash
-python convert.py <input.docx> [output.docx] [--type s2mo|t2s]
+python opencc_word.py <input.docx> [output.docx] [--type s2mo|t2s]
 ```
 
 ### Options
