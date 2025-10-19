@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>opencc繁簡轉換</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        /* Style for result textarea */
+        #resultText {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        #convertToTraditional {
+            background: #3498db;
+            color: white;
+        }
+        #convertToSimplified {
+            background: #2ecc71;
+            color: white;
+        }
+        #convertDocxToTraditional {
+            background: #3498db;
+            color: white;
+        }
+        #convertDocxToSimplified {
+            background: #2ecc71;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>opencc繁簡轉換</h1>
+        <div class="converter">
+            <textarea id="inputText" placeholder="輸入內容..."></textarea>
+            
+            <!-- File Upload Section -->
+            <div class="upload-section">
+                <div class="file-input-wrapper">
+                    📄 選擇 .docx 檔案
+                    <input type="file" id="fileInput" accept=".docx">
+                </div>
+                <div class="file-name" id="fileName"></div>
+            </div>
+            
+            <div class="buttons">
+                <button id="convertToTraditional">簡體中文 → 繁體中文</button>
+                <button id="convertToSimplified">繁體中文 → 簡體中文</button>
+            </div>
+            
+            <!--add another set of buttons for docx conversion-->
+            <div class="buttons">
+                <button id="convertDocxToTraditional">.docx 簡體中文 → 繁體中文</button>
+                <button id="convertDocxToSimplified">.docx 繁體中文 → 簡體中文</button>
+            </div>
+            
+            <div id="loading" class="loading" style="display: none;">轉換中...</div>
+            <textarea id="resultText" placeholder="轉換結果將顯示於此..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputText = document.getElementById('inputText');
+            const resultText = document.getElementById('resultText');
+            const loadingDiv = document.getElementById('loading');
+            const toTraditionalBtn = document.getElementById('convertToTraditional');
+            const toSimplifiedBtn = document.getElementById('convertToSimplified');
+            const docxToTraditionalBtn = document.getElementById('convertDocxToTraditional');
+            const docxToSimplifiedBtn = document.getElementById('convertDocxToSimplified');
+
+            async function convertText(conversionType) {
+                const text = inputText.value.trim();
+                if (!text) {
+                    resultText.value = '請先輸入內容!';
+                    return;
+                }
+
+                setLoading(true);
+                
+                try {
+                    const response = await fetch('/convert', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            text, 
+                            conversion: conversionType 
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        resultText.value = data.convertedText;
+                    } else {
+                        resultText.value = `錯誤: ${data.error || '轉換失敗'}`;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    resultText.value = '網路錯誤，請稍後再試。';
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+
+            // DOCX conversion (NEW)
+            async function convertDocx(conversionType) {
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('請先選擇一個 .docx 檔案！');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('conversion', conversionType);
+
+                setLoading(true);
+                try {
+                    const response = await fetch('/convert_docx', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    console.log(response);
+
+                    if (response.ok) {
+                        // Trigger file download
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        
+                        // Parse filename from Content-Disposition header
+                        const disposition = response.headers.get('Content-Disposition');
+                        let filename = 'download.docx'; // fallback
+
+                        if (disposition) {
+                            // Match filename* (RFC 5987) first for Unicode support
+                            const utf8FilenameMatch = disposition.match(/filename\*=UTF-8''(.+)/i);
+                            if (utf8FilenameMatch) {
+                                // Decode percent-encoded UTF-8 filename
+                                filename = decodeURIComponent(utf8FilenameMatch[1]);
+                            } else {
+                                // Fallback to regular filename (may be quoted)
+                                const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
+                                if (filenameMatch) {
+                                    filename = filenameMatch[1];
+                                }
+                            }
+                        }
+
+                        a.download = filename;
+                        
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    } else {
+                        const error = await response.json(); // only if backend returns JSON on error
+                        alert('Error: ' + error.error);
+                    }
+                } catch (error) {
+                    console.error('DOCX Conversion error:', error);
+                    resultText.value = '使用網路錯誤，請稍後再試。';
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            function setLoading(isLoading) {
+                loadingDiv.style.display = isLoading ? 'block' : 'none';
+                toTraditionalBtn.disabled = isLoading;
+                toSimplifiedBtn.disabled = isLoading;
+                docxToTraditionalBtn.disabled = isLoading;
+                docxToSimplifiedBtn.disabled = isLoading;
+            }
+
+            toTraditionalBtn.addEventListener('click', () => 
+                convertText('s2hk')
+            );
+            
+            toSimplifiedBtn.addEventListener('click', () => 
+                convertText('t2s')
+            );
+            
+            docxToTraditionalBtn.addEventListener('click', () => 
+                convertDocx('s2hk')
+            );
+
+            docxToSimplifiedBtn.addEventListener('click', () => 
+                convertDocx('t2s')
+            );
+        });
+    </script>
+</body>
+</html>
