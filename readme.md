@@ -19,7 +19,7 @@ Convert Simplified Chinese <-> Traditional Chinese in `.docx` files **while pres
 
 ---
 
-## 🛠️ Installation
+## 🛠️ Installation and How to Use
 
 ### 1. Clone or download this repository
 ```bash
@@ -33,6 +33,14 @@ pip install python-docx opencc flask
 ```
 
 > ⚠️ **Note**: Only `.docx` files are supported (not legacy `.doc`). The script will warn you if `.doc` is used.
+
+### 3. Start the server
+```bash
+python server.py
+```
+
+### 4. Open the webpage interface
+Open the opencc_local.url, which is http://localhost:15733/
 
 ---
 
