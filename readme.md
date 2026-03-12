@@ -1,7 +1,7 @@
 # 📘 Simplified <-> Traditional Chinese .docx Converter
 
 [![Python](https://img.shields.io/badge/Python-3.6%2B-blue?logo=python)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-WTFPL-blue.svg)](LICENSE)
 
 Convert Simplified Chinese <-> Traditional Chinese in `.docx` files **while preserving all text formatting** (bold, italic, font, color, etc.) and runs opencc locally with webpage interface, with built-in support for further replacing text with **Chinese characters commonly used in Macau**.
 
@@ -38,11 +38,15 @@ pip install python-docx opencc flask
 ```bash
 python server.py
 ```
+> ⚠️ or you may just use the server.sh to start the server
 
 ### 4. Open the webpage interface
 Open the opencc_local.url, which is http://localhost:15733/
 
+> ⚠️ or you may just use the launch.sh to start the server and open the webpage
+
 ---
+
 
 
 ### 🔧 Customize `hk2mo.json`
@@ -84,6 +88,6 @@ Define Chinese characters commonly used in Macau:
 
 ## 📄 License
 
-This project is licensed under the WTFPL License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the WTFPL License.
 
 ---
