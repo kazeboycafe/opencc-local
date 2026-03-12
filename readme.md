@@ -50,7 +50,9 @@ Define Chinese characters commonly used in Macau:
 
 ```json
 {
-  "衞": "衛"
+  "衞": "衛",
+  "羣": "群",
+  "户": "戶",
 }
 ```
 
@@ -82,6 +84,6 @@ Define Chinese characters commonly used in Macau:
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the WTFPL License — see the [LICENSE](LICENSE) file for details.
 
 ---
