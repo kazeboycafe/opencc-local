@@ -1,21 +1,26 @@
 import os
-from flask import Flask, render_template, request, jsonify, send_file
+import logging
+from flask import Flask, request, jsonify, send_file, render_template
 from io import BytesIO
 import opencc
-from replace_with_json_dict import replace_with_json_dict
+from replace_with_json_dict import load_replacements
 import opencc_docx
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
-# Initialize converters (do this once at startup for efficiency)
+# Preload converters
 CONVERTERS = {
-    's2hk': opencc.OpenCC('s2hk.json'),  # Simplified to Traditional (Hong Kong)
-    't2s': opencc.OpenCC('t2s.json')   # Traditional to Simplified
+    's2hk': opencc.OpenCC('s2hk.json'),
+    't2s': opencc.OpenCC('t2s.json')
 }
+
+# Preload extra replacements for s2hk (optional)
+EXTRA_REPLACEMENTS = load_replacements('hk2mo.json')
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html')  # ensure the templates folder had index.html
 
 @app.route('/convert', methods=['POST'])
 def convert_text():
@@ -26,27 +31,24 @@ def convert_text():
 
         if not text:
             return jsonify({'error': 'Text is empty'}), 400
-        
         if conversion not in CONVERTERS:
             return jsonify({'error': 'Invalid conversion type'}), 400
 
-        # Perform conversion
         converted = CONVERTERS[conversion].convert(text)
-        if conversion == 's2hk':
-            # Further replace the text using the hk2mo.json mapping
-            converted = replace_with_json_dict(converted, 'hk2mo.json')
-            
-        return jsonify({'convertedText': converted})
+        if conversion == 's2hk' and EXTRA_REPLACEMENTS:
+            for old, new in EXTRA_REPLACEMENTS.items():
+                converted = converted.replace(old, new)
 
+        return jsonify({'convertedText': converted})
     except Exception as e:
+        logging.exception("Text conversion error")
         return jsonify({'error': f'Conversion failed: {str(e)}'}), 500
 
 @app.route('/convert_docx', methods=['POST'])
 def convert_docx():
-    #use the opencc_docx.py function to convert docx files
     try:
         if 'file' not in request.files:
-            return jsonify({'error': 'No file part in the request'}), 400
+            return jsonify({'error': 'No file part'}), 400
         
         file = request.files['file']
         if file.filename == '':
@@ -54,42 +56,39 @@ def convert_docx():
         if not file.filename.lower().endswith('.docx'):
             return jsonify({'error': 'Only .docx files are allowed'}), 400
         
-        conversion = request.form.get('conversion', 's2mo')
-        
-        # Read file into memory
-        input_file = file.read()
+        conversion = request.form.get('conversion', 's2hk')
+        if conversion not in ['s2hk', 't2s']:
+            return jsonify({'error': 'Invalid conversion type'}), 400
 
-        # Wrap bytes in BytesIO to make it file-like
-        input_file = BytesIO(input_file)
+        # Read file into memory
+        input_bytes = BytesIO(file.read())
         
-        # Convert the DOCX file
-        output_file = opencc_docx.convert_docx_chinese(input_file, conversion_type=conversion, extra_s2t_conversion_json_path='hk2mo.json')
+        # Convert the DOCX file (table-aware version)
+        output_doc = opencc_docx.convert_docx_chinese(
+            input_bytes,
+            conversion_type=conversion,
+            extra_s2t_conversion_json_path='hk2mo.json'
+        )
         
         output_bytes = BytesIO()
-        output_file.save(output_bytes)
+        output_doc.save(output_bytes)
         output_bytes.seek(0)
         
+        # Generate output filename
         base, ext = os.path.splitext(file.filename)
-        if conversion == 's2hk':
-            # Preserve original extension (case-insensitive)
-            download_name = f"{base}(t){ext}"
-        elif conversion == 't2s':
-            # Preserve original extension (case-insensitive)
-            download_name = f"{base}(s){ext}"
-
-        print(download_name)
-
+        suffix = '(t)' if conversion == 's2hk' else '(s)'
+        download_name = f"{base}{suffix}{ext}"
+        
         return send_file(
-            BytesIO(output_bytes.getvalue()),
+            output_bytes,
             mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            as_attachment = True,
-            download_name = download_name
+            as_attachment=True,
+            download_name=download_name
         )
-    
-
     except Exception as e:
+        logging.exception("DOCX conversion error")
         return jsonify({'error': f'DOCX conversion failed: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    #use port 15733
-    app.run(debug=True, host='0.0.0.0', port=15733)
+    print("🚀 Server running at http://127.0.0.1:15733")
+    app.run(debug=True, port=15733)

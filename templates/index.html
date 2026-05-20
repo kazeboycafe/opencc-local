@@ -2,255 +2,585 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>opencc繁簡轉換</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>opencc繁簡轉換 · 拖拽上傳</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', 'Noto Sans CJK TC', Roboto, 'Helvetica Neue', sans-serif;
+            max-width: 960px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 28px 24px;
+            background-color: #f4f6fa;
         }
+
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            padding: 28px 32px 36px;
+            transition: all 0.2s;
         }
+
         h1 {
-            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
             text-align: center;
-            margin-bottom: 30px;
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 28px;
+            letter-spacing: -0.2px;
+            background: linear-gradient(120deg, #1e2a3a, #2c3e50);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
         }
+
         .converter {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 26px;
         }
+
+        /* 輸入輸出框 */
         textarea {
             width: 100%;
-            height: 150px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 16px 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            font-family: inherit;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            background: #ffffff;
             resize: vertical;
-            box-sizing: border-box;
+            transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            height: 150px;
         }
-        /* Style for result textarea */
+
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+
         #resultText {
-            background-color: #f9f9f9;
-            color: #333;
+            background-color: #fefefe;
         }
-        .buttons {
+
+        /* 按鈕組 */
+        .buttons-group {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin: 10px 0;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 6px 0 4px;
         }
+
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 10px 26px;
+            font-size: 0.9rem;
+            font-weight: 500;
             border: none;
-            border-radius: 5px;
+            border-radius: 60px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.2s ease;
+            background-color: #f1f5f9;
+            color: #1e293b;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        #convertToTraditional {
-            background: #3498db;
+
+        /* 簡體 → 繁體 (藍色系) */
+        .btn-s2t {
+            background-color: #3b82f6;
             color: white;
+            box-shadow: 0 4px 8px rgba(59,130,246,0.25);
         }
-        #convertToSimplified {
-            background: #2ecc71;
+        .btn-s2t:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        /* 繁體 → 簡體 (粉色系) */
+        .btn-t2s {
+            background-color: #f472b6;
             color: white;
+            box-shadow: 0 4px 10px rgba(244,114,182,0.3);
         }
-        #convertDocxToTraditional {
-            background: #3498db;
-            color: white;
+        .btn-t2s:hover {
+            background-color: #ec4899;
+            transform: translateY(-1px);
         }
-        #convertDocxToSimplified {
-            background: #2ecc71;
-            color: white;
+
+        button:active {
+            transform: translateY(1px);
         }
-        button:hover {
-            opacity: 0.9;
-        }
+
         button:disabled {
-            background: #95a5a6;
+            opacity: 0.6;
+            transform: none;
             cursor: not-allowed;
+            background-color: #cbd5e1 !important;
+            box-shadow: none;
+            color: #475569 !important;
         }
+
+        /* 拖拽區域 (全新風格) */
+        .drag-drop-section {
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        .section-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .drag-zone {
+            background: #f9fbfe;
+            border: 2px dashed #cbd5e1;
+            border-radius: 28px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .drag-zone.drag-over {
+            background-color: #fef2f6;
+            border-color: #f472b6;
+            border-style: solid;
+            transform: scale(1.01);
+        }
+
+        .drag-icon {
+            font-size: 44px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .drag-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .drag-sub {
+            font-size: 0.8rem;
+            color: #6c7a91;
+            margin-bottom: 16px;
+        }
+
+        .file-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #eef2ff;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: #1e40af;
+            font-weight: 500;
+            margin-top: 12px;
+            max-width: 100%;
+            word-break: break-all;
+        }
+
+        .clear-file-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 8px;
+            border-radius: 40px;
+            color: #64748b;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .clear-file-btn:hover {
+            color: #e11d48;
+            background: #ffe4e6;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
         .loading {
             text-align: center;
-            color: #7f8c8d;
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 60px;
+            color: #2563eb;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        hr {
+            margin: 0;
+            border: none;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>opencc繁簡轉換</h1>
-        <div class="converter">
-            <textarea id="inputText" placeholder="輸入內容..."></textarea>
-            
-            <!-- File Upload Section -->
-            <div class="upload-section">
-                <div class="file-input-wrapper">
-                    <label for="fileInput">📄 選擇 .docx 檔案</label>
-                    <input type="file" id="fileInput" accept=".docx">
-                </div>
-                <div class="file-name" id="fileName"></div>
-            </div>
-            
-            <div class="buttons">
-                <button id="convertToTraditional">簡體中文 → 繁體中文</button>
-                <button id="convertToSimplified">繁體中文 → 簡體中文</button>
-            </div>
-            
-            <!--add another set of buttons for docx conversion-->
-            <div class="buttons">
-                <button id="convertDocxToTraditional">.docx 簡體中文 → 繁體中文</button>
-                <button id="convertDocxToSimplified">.docx 繁體中文 → 簡體中文</button>
-            </div>
-            
-            <div id="loading" class="loading" style="display: none;">轉換中...</div>
-            <textarea id="resultText" placeholder="轉換結果將顯示於此..."></textarea>
+<div class="container">
+    <h1> Opencc 繁簡轉換</h1>
+    <div class="converter">
+        
+        <!-- 1. 輸入框 (Input box) -->
+        <textarea id="inputText" placeholder="請輸入要轉換的文本 (簡體中文 / 繁體中文皆可)"></textarea>
+        
+        <!-- 文字轉換按鈕組 (無圖標) -->
+        <div class="buttons-group">
+            <button id="convertToTraditional" class="btn-s2t">簡體中文 → 繁體中文</button>
+            <button id="convertToSimplified" class="btn-t2s">繁體中文 → 簡體中文</button>
         </div>
+        
+        <!-- 2. 輸出框 (Output box) -->
+        <textarea id="resultText" placeholder="轉換結果將顯示在這裡"></textarea>
+        
+        <!-- 3. 拖拽上傳區域 (Drag & drop region) 置於輸出框下方 -->
+        <div class="drag-drop-section">
+            <div class="section-label">
+                <span>📄</span> .docx 文件轉換 (拖曳 / 點選上傳)
+            </div>
+            <div id="dropZone" class="drag-zone">
+                <div class="drag-icon">📎</div>
+                <div class="drag-title">將 .docx 檔案拖曳至此</div>
+                <div class="drag-sub">或點擊此處瀏覽 Word 文件 (僅支援 .docx)</div>
+                <div id="filePreview" class="file-badge" style="display: none;">
+                    <span>📄</span> <span id="selectedFileName"></span>
+                    <button type="button" id="clearFileBtn" class="clear-file-btn" title="移除檔案">✕</button>
+                </div>
+            </div>
+            <!-- 隱藏的原生 file input -->
+            <input type="file" id="fileInput" class="hidden-input" accept=".docx">
+        </div>
+        
+        <!-- .docx 轉換按鈕組 (無圖標) -->
+        <div class="buttons-group">
+            <button id="convertDocxToTraditional" class="btn-s2t">簡體 .docx → 繁體 .docx</button>
+            <button id="convertDocxToSimplified" class="btn-t2s">繁體 .docx → 簡體 .docx</button>
+        </div>
+        
+        <!-- 加載提示 -->
+        <div id="loading" class="loading" style="display: none;">⏳ 轉換處理中，請稍候...</div>
+        <div class="footer-note">使用 OpenCC 精準轉換 • 支援保留 Word 格式</div>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputText = document.getElementById('inputText');
-            const resultText = document.getElementById('resultText');
-            const loadingDiv = document.getElementById('loading');
-            const toTraditionalBtn = document.getElementById('convertToTraditional');
-            const toSimplifiedBtn = document.getElementById('convertToSimplified');
-            const docxToTraditionalBtn = document.getElementById('convertDocxToTraditional');
-            const docxToSimplifiedBtn = document.getElementById('convertDocxToSimplified');
-
-            async function convertText(conversionType) {
-                const text = inputText.value.trim();
-                if (!text) {
-                    resultText.value = '請先輸入內容!';
-                    return;
+<script>
+    (function(){
+        // DOM 元素
+        const inputText = document.getElementById('inputText');
+        const resultText = document.getElementById('resultText');
+        const loadingDiv = document.getElementById('loading');
+        
+        // 文字轉換按鈕
+        const toTraditionalBtn = document.getElementById('convertToTraditional');
+        const toSimplifiedBtn = document.getElementById('convertToSimplified');
+        
+        // docx 轉換按鈕
+        const docxToTraditionalBtn = document.getElementById('convertDocxToTraditional');
+        const docxToSimplifiedBtn = document.getElementById('convertDocxToSimplified');
+        
+        // 拖拽相關元素
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        const selectedFileNameSpan = document.getElementById('selectedFileName');
+        const clearFileBtn = document.getElementById('clearFileBtn');
+        
+        // 當前儲存的 .docx 檔案 (同步使用)
+        let currentDocxFile = null;
+        
+        // ---------- UI 輔助函式 (檔案預覽/同步) ----------
+        function updateFilePreviewUI(file) {
+            if (file && file.name && file.name.toLowerCase().endsWith('.docx')) {
+                selectedFileNameSpan.textContent = file.name;
+                filePreview.style.display = 'inline-flex';
+                dropZone.style.borderColor = '#f472b6';
+                dropZone.style.backgroundColor = '#fff5f8';
+            } else {
+                filePreview.style.display = 'none';
+                selectedFileNameSpan.textContent = '';
+                dropZone.style.borderColor = '#cbd5e1';
+                dropZone.style.backgroundColor = '#f9fbfe';
+            }
+        }
+        
+        // 將 File 物件同步至隱藏的 <input type="file"> 並更新內部狀態
+        function syncFileToInput(file) {
+            if (!file) {
+                const dataTransfer = new DataTransfer();
+                fileInput.files = dataTransfer.files;
+                currentDocxFile = null;
+                updateFilePreviewUI(null);
+                return true;
+            }
+            
+            // 驗證副檔名
+            if (!file.name.toLowerCase().endsWith('.docx')) {
+                alert('❌ 不支援的檔案格式，請上傳 .docx 文件');
+                const emptyTransfer = new DataTransfer();
+                fileInput.files = emptyTransfer.files;
+                currentDocxFile = null;
+                updateFilePreviewUI(null);
+                return false;
+            }
+            
+            try {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                currentDocxFile = file;
+                updateFilePreviewUI(file);
+                return true;
+            } catch (err) {
+                console.warn("DataTransfer 同步失敗，降級保存參考");
+                currentDocxFile = file;
+                updateFilePreviewUI(file);
+                return true;
+            }
+        }
+        
+        // 清除目前選取的檔案
+        function clearCurrentFile() {
+            const emptyTransfer = new DataTransfer();
+            fileInput.files = emptyTransfer.files;
+            currentDocxFile = null;
+            updateFilePreviewUI(null);
+            dropZone.style.borderColor = '#cbd5e1';
+            dropZone.style.backgroundColor = '#f9fbfe';
+        }
+        
+        // 處理使用者選取 / 拖拽檔案
+        function processSelectedFile(file) {
+            if (!file) return false;
+            if (!file.name.toLowerCase().endsWith('.docx')) {
+                alert('⚠️ 請選擇 .docx 格式的 Word 文件');
+                return false;
+            }
+            const success = syncFileToInput(file);
+            if (success) {
+                // 短暫回饋視覺
+                dropZone.style.backgroundColor = '#feeef4';
+                setTimeout(() => {
+                    if (currentDocxFile) dropZone.style.backgroundColor = '#fff5f8';
+                    else dropZone.style.backgroundColor = '#f9fbfe';
+                }, 150);
+            }
+            return success;
+        }
+        
+        // ---------- 拖拽事件處理 ----------
+        function onDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drag-over');
+        }
+        
+        function onDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+        }
+        
+        function onDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                processSelectedFile(files[0]);
+            }
+        }
+        
+        function onDropZoneClick(e) {
+            // 避免點擊到清除按鈕時觸發檔案選取窗
+            if (e.target === clearFileBtn || clearFileBtn.contains(e.target)) {
+                return;
+            }
+            fileInput.click();
+        }
+        
+        function onFileInputChange(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                processSelectedFile(files[0]);
+            } else {
+                clearCurrentFile();
+            }
+        }
+        
+        function onClearFileClick(e) {
+            e.stopPropagation();
+            clearCurrentFile();
+            fileInput.value = '';   // 清空原生 input 的值
+        }
+        
+        // ---------- 按鈕載入狀態控制 ----------
+        function setLoading(isLoading) {
+            loadingDiv.style.display = isLoading ? 'block' : 'none';
+            const allBtns = [toTraditionalBtn, toSimplifiedBtn, docxToTraditionalBtn, docxToSimplifiedBtn];
+            allBtns.forEach(btn => { if (btn) btn.disabled = isLoading; });
+        }
+        
+        // ---------- API 呼叫: 文字轉換 ----------
+        async function convertText(conversionType) {
+            const text = inputText.value.trim();
+            if (!text) {
+                resultText.value = '⚠️ 請在輸入框內填寫要轉換的文字';
+                return;
+            }
+            setLoading(true);
+            try {
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, conversion: conversionType })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    resultText.value = data.convertedText;
+                } else {
+                    resultText.value = `❌ 轉換失敗：${data.error || '伺服器錯誤'}`;
                 }
-
-                setLoading(true);
+            } catch (err) {
+                console.error('文字轉換錯誤:', err);
+                resultText.value = '🌐 網路錯誤，請確認後端服務已啟動 (port 15733)';
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        // ---------- API 呼叫: DOCX 轉換 (直接使用當前檔案) ----------
+        async function convertDocx(conversionType) {
+            let targetFile = currentDocxFile;
+            if (!targetFile && fileInput.files && fileInput.files.length > 0) {
+                targetFile = fileInput.files[0];
+                if (targetFile) currentDocxFile = targetFile;
+            }
+            if (!targetFile) {
+                alert('📂 請先拖曳或點擊上傳一個 .docx 文件');
+                return;
+            }
+            if (!targetFile.name.toLowerCase().endsWith('.docx')) {
+                alert('❌ 檔案格式錯誤，僅支援 .docx');
+                clearCurrentFile();
+                return;
+            }
+            
+            setLoading(true);
+            const formData = new FormData();
+            formData.append('file', targetFile);
+            formData.append('conversion', conversionType);
+            
+            try {
+                const response = await fetch('/convert_docx', {
+                    method: 'POST',
+                    body: formData
+                });
                 
-                try {
-                    const response = await fetch('/convert', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ 
-                            text, 
-                            conversion: conversionType 
-                        })
-                    });
-
-                    const data = await response.json();
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
                     
-                    if (response.ok) {
-                        resultText.value = data.convertedText;
-                    } else {
-                        resultText.value = `錯誤: ${data.error || '轉換失敗'}`;
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    resultText.value = '網路錯誤，請稍後再試。';
-                } finally {
-                    setLoading(false);
-                }
-            }
-
-
-            // DOCX conversion (NEW)
-            async function convertDocx(conversionType) {
-                const file = fileInput.files[0];
-                if (!file) {
-                    alert('請先選擇一個 .docx 檔案！');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('conversion', conversionType);
-
-                setLoading(true);
-                try {
-                    const response = await fetch('/convert_docx', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    console.log(response);
-
-                    if (response.ok) {
-                        // Trigger file download
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        
-                        // Parse filename from Content-Disposition header
-                        const disposition = response.headers.get('Content-Disposition');
-                        let filename = 'download.docx'; // fallback
-
-                        if (disposition) {
-                            // Match filename* (RFC 5987) first for Unicode support
-                            const utf8FilenameMatch = disposition.match(/filename\*=UTF-8''(.+)/i);
-                            if (utf8FilenameMatch) {
-                                // Decode percent-encoded UTF-8 filename
-                                filename = decodeURIComponent(utf8FilenameMatch[1]);
-                            } else {
-                                // Fallback to regular filename (may be quoted)
-                                const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
-                                if (filenameMatch) {
-                                    filename = filenameMatch[1];
-                                }
-                            }
+                    // 解析下載檔名 (Content-Disposition)
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = '';
+                    if (disposition) {
+                        const utf8Match = disposition.match(/filename\*=UTF-8''(.+)/i);
+                        if (utf8Match) {
+                            filename = decodeURIComponent(utf8Match[1]);
+                        } else {
+                            const simpleMatch = disposition.match(/filename="?([^"]+)"?/i);
+                            if (simpleMatch) filename = simpleMatch[1];
                         }
-
-                        a.download = filename;
-                        
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    } else {
-                        const error = await response.json(); // only if backend returns JSON on error
-                        alert('Error: ' + error.error);
                     }
-                } catch (error) {
-                    console.error('DOCX Conversion error:', error);
-                    resultText.value = '使用網路錯誤，請稍後再試。';
-                } finally {
-                    setLoading(false);
+                    if (!filename) {
+                        const base = targetFile.name.replace(/\.docx$/i, '');
+                        const suffix = conversionType === 's2hk' ? '(t)' : '(s)';
+                        filename = `${base}${suffix}.docx`;
+                    }
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    // 輕提示：轉換成功寫入輸出框
+                    resultText.value = `✅ 轉換完成！檔案「${filename}」已下載。`;
+                } else {
+                    let errorMsg = '後端轉換失敗';
+                    try {
+                        const errJson = await response.json();
+                        errorMsg = errJson.error || errorMsg;
+                    } catch (e) {}
+                    alert(`⚠️ DOCX 轉換錯誤：${errorMsg}`);
+                    resultText.value = `❌ 文件轉換失敗：${errorMsg}`;
                 }
+            } catch (err) {
+                console.error('docx轉換異常:', err);
+                alert('網路或伺服器錯誤，請檢查 Flask 服務狀態 (port 15733)');
+                resultText.value = '🌐 網路錯誤，無法完成 DOCX 轉換';
+            } finally {
+                setLoading(false);
             }
-
-            function setLoading(isLoading) {
-                loadingDiv.style.display = isLoading ? 'block' : 'none';
-                toTraditionalBtn.disabled = isLoading;
-                toSimplifiedBtn.disabled = isLoading;
-                docxToTraditionalBtn.disabled = isLoading;
-                docxToSimplifiedBtn.disabled = isLoading;
-            }
-
-            toTraditionalBtn.addEventListener('click', () => 
-                convertText('s2hk')
-            );
-            
-            toSimplifiedBtn.addEventListener('click', () => 
-                convertText('t2s')
-            );
-            
-            docxToTraditionalBtn.addEventListener('click', () => 
-                convertDocx('s2hk')
-            );
-
-            docxToSimplifiedBtn.addEventListener('click', () => 
-                convertDocx('t2s')
-            );
-        });
-    </script>
+        }
+        
+        // ---------- 事件綁定 ----------
+        // 文字轉換事件
+        toTraditionalBtn.addEventListener('click', () => convertText('s2hk'));
+        toSimplifiedBtn.addEventListener('click', () => convertText('t2s'));
+        
+        // docx 轉換事件
+        docxToTraditionalBtn.addEventListener('click', () => convertDocx('s2hk'));
+        docxToSimplifiedBtn.addEventListener('click', () => convertDocx('t2s'));
+        
+        // 拖拽區域監聽
+        dropZone.addEventListener('dragover', onDragOver);
+        dropZone.addEventListener('dragleave', onDragLeave);
+        dropZone.addEventListener('drop', onDrop);
+        dropZone.addEventListener('click', onDropZoneClick);
+        
+        // 原生 file input 變更
+        fileInput.addEventListener('change', onFileInputChange);
+        
+        // 清除按鈕
+        if (clearFileBtn) {
+            clearFileBtn.addEventListener('click', onClearFileClick);
+        }
+        
+        // 初始化為無檔案狀態
+        clearCurrentFile();
+        
+        // 避免拖拽時瀏覽器打開連結
+        window.addEventListener('dragover', (e) => e.preventDefault());
+        window.addEventListener('drop', (e) => e.preventDefault());
+        
+        console.log('✅ 界面加載完成 — 佈局順序: 輸入框 → 輸出框 → 拖拽區域，粉色按鈕為「繁體→簡體」');
+    })();
+</script>
 </body>
 </html>
